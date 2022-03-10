@@ -31,10 +31,10 @@ public class OrderServiceImplTest {
     OrderService orderService = new OrderServiceImpl(orderRepository, orderItemRepository, bookRepository, userRepository);
 
     @Test
-    public void shouldThrowCustomerNotFoundExceptionWhenCustomerDoesNotExists() {
-        long customerId = 1L;
+    public void shouldThrowUserNotFoundExceptionWhenUserDoesNotExists() {
+        long userId = 1L;
 
-        when(userRepository.findById(customerId)).thenReturn(empty());
+        when(userRepository.findById(userId)).thenReturn(empty());
         assertThrows(UserNotFound.class, () -> orderService.create(new OrderDto()), USER_NOT_FOUND);
     }
 
@@ -112,7 +112,7 @@ public class OrderServiceImplTest {
     }
 
     @Test
-    public void shouldReturnOrderedStatusWhenCustomerAndBookIsAvailable() throws UserNotFound {
+    public void shouldReturnOrderedStatusWhenUserAndBookIsAvailable() throws UserNotFound {
         long userId = 1L;
         long bookId = 1L;
         int requiredQuantity = 1;
@@ -134,9 +134,9 @@ public class OrderServiceImplTest {
         assertEquals(bookId, orderItemResponseDto.getBookId());
     }
 
-    private OrderDto buildOrderDto(long customerId, long bookId, int requiredQuantity) {
+    private OrderDto buildOrderDto(long userId, long bookId, int requiredQuantity) {
         OrderDto orderDto = new OrderDto();
-        orderDto.setCustomerId(customerId);
+        orderDto.setUserId(userId);
         OrderItemDto orderItemDto = buildOrderItemDto(bookId, requiredQuantity);
 
         List<OrderItemDto> orderItemDtoList = new LinkedList<>();

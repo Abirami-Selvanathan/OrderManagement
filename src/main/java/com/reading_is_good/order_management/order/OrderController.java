@@ -30,7 +30,7 @@ public class OrderController {
             authenticationService.authenticate(token);
             return new ResponseEntity<>(orderService.create(orderDto), HttpStatus.CREATED);
         } catch (UserNotFound e) {
-            log.error("Exception occurred because customer does not exists");
+            log.error("Exception occurred because user does not exists");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (AuthenticationFailException e) {
             log.error("Exception occurred due to invalid user");

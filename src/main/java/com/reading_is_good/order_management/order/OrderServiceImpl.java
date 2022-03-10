@@ -31,14 +31,14 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseDto create(OrderDto orderDto) throws UserNotFound {
         Order order = new Order();
 
-        Optional<User> userOptional = userRepository.findById(orderDto.getCustomerId());
+        Optional<User> userOptional = userRepository.findById(orderDto.getUserId());
 
         if (userOptional.isEmpty()) {
             throw new UserNotFound(USER_NOT_FOUND);
         }
 
-        User customer = userOptional.get();
-        order.setCustomer(customer);
+        User user = userOptional.get();
+        order.setUser(user);
 
         orderRepository.save(order);
 

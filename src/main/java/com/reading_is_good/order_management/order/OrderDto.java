@@ -4,16 +4,16 @@ import java.util.List;
 
 public class OrderDto {
 
-    private Long customerId;
+    private Long userId;
 
     private List<OrderItemDto> orderItem;
 
-    public Long getCustomerId() {
-        return customerId;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public List<OrderItemDto> getOrderItem() {

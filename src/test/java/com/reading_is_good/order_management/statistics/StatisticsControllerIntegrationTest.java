@@ -1,10 +1,14 @@
-package com.reading_is_good.order_management.order;
+package com.reading_is_good.order_management.statistics;
 
 import com.reading_is_good.order_management.OrderManagementApplication;
 import com.reading_is_good.order_management.authentication.AuthenticationToken;
 import com.reading_is_good.order_management.authentication.AuthenticationTokenRepository;
 import com.reading_is_good.order_management.book.Book;
 import com.reading_is_good.order_management.book.BookRepository;
+import com.reading_is_good.order_management.order.Order;
+import com.reading_is_good.order_management.order.OrderItem;
+import com.reading_is_good.order_management.order.OrderItemRepository;
+import com.reading_is_good.order_management.order.OrderRepository;
 import com.reading_is_good.order_management.user.User;
 import com.reading_is_good.order_management.user.UserRepository;
 import org.junit.Test;
@@ -18,8 +22,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Random;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -28,15 +32,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         classes = OrderManagementApplication.class)
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application.properties")
-public class OrderControllerIntegrationTest {
+public class StatisticsControllerIntegrationTest {
+
     @Autowired
     private MockMvc mvc;
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private AuthenticationTokenRepository authenticationTokenRepository;
 
     @Autowired
     private BookRepository bookRepository;
@@ -47,36 +49,34 @@ public class OrderControllerIntegrationTest {
     @Autowired
     private OrderItemRepository orderItemRepository;
 
+    @Autowired
+    private AuthenticationTokenRepository authenticationTokenRepository;
+
     @Test
-    public void returnsCreatedWhenValidOrderDtoIsGiven() throws Exception {
-        User user = persistUser();
-        Book book = persistBook();
-        AuthenticationToken authenticationToken = persistAuthorizationToken(user);
-
-        String contentJson = "{\"userId\":" + user.getId() + ",\"orderItem\":" +
-                "[{\"bookId\":" + book.getId() + ",\"quantity\":1}]}";
-
-        mvc.perform(post("/orders?token="+authenticationToken.getToken())
-                        .contentType(APPLICATION_JSON)
-                        .content(contentJson))
-                .andExpect(status().isCreated());
-
-        orderItemRepository.deleteAll();
-        orderRepository.deleteAll();
-        bookRepository.deleteById(book.getId());
-        authenticationTokenRepository.deleteById(authenticationToken.getId());
-        userRepository.deleteById(user.getId());
+    public void returnsNotFoundWhenUserDoesNotExists() throws Exception {
+        mvc.perform(get("/statistics?userId=" + new Random().nextInt() +"&token=token"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    public void returnsUnauthorizedWhenUserDoesNotHaveValidAuthToken() throws Exception {
-        String contentJson = "{\"userId\":" + new Random().nextLong() + ",\"orderItem\":" +
-                "[{\"bookId\":" + new Random().nextLong() + ",\"quantity\":1}]}";
+    public void returnsStatisticsResponseDtoWhenUserIdIsGiven() throws Exception {
+        User user = persistUser();
+        AuthenticationToken authenticationToken = persistAuthorizationToken(user);
+        Book book = persistBook();
+        Order order = persistOrder(user);
+        OrderItem orderItem = persistOrderItem(book, order);
 
-        mvc.perform(post("/orders?token=token")
-                        .contentType(APPLICATION_JSON)
-                        .content(contentJson))
-                .andExpect(status().isUnauthorized());
+        mvc.perform(get("/statistics?userId=" + user.getId()+"&token="+authenticationToken.getToken()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].orderCount").value(1))
+                .andExpect(jsonPath("$[0].bookCount").value(1))
+                .andExpect(jsonPath("$[0].totalPrice").value(100));
+
+        orderItemRepository.deleteById(orderItem.getId());
+        orderRepository.deleteById(order.getId());
+        bookRepository.deleteById(book.getId());
+        authenticationTokenRepository.deleteById(authenticationToken.getId());
+        userRepository.deleteById(user.getId());
     }
 
     private AuthenticationToken persistAuthorizationToken(User user) {
@@ -104,5 +104,22 @@ public class OrderControllerIntegrationTest {
         book.setQuantity(10);
         bookRepository.save(book);
         return book;
+    }
+
+    private Order persistOrder(User user) {
+        Order order = new Order();
+        order.setUser(user);
+        orderRepository.save(order);
+        return order;
+    }
+
+    private OrderItem persistOrderItem(Book book, Order order) {
+        OrderItem orderItem = new OrderItem();
+        orderItem.setOrder(order);
+        orderItem.setBook(book);
+        orderItem.setPrice(100);
+        orderItem.setQuantity(1);
+        orderItemRepository.save(orderItem);
+        return orderItem;
     }
 }

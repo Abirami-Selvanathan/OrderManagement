@@ -15,7 +15,7 @@ public class Order {
     private Long id;
 
     @Column(name = "created")
-    private Date created;
+    private Date createdDate;
 
     @ManyToOne()
     @JsonIgnore
@@ -33,21 +33,21 @@ public class Order {
         this.id = id;
     }
 
-    public Date getCreated() {
-        return created;
+    public Date getCreatedDate() {
+        return createdDate;
     }
 
     @PrePersist
-    protected void onCreate() {
-        created = new Date();
+    public void onCreate() {
+        createdDate = new Date();
     }
 
     public User getUser() {
         return user;
     }
 
-    public void setCustomer(User customer) {
-        this.user = customer;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public List<OrderItem> getOrderItems() {
