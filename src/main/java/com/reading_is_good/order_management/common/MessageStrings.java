@@ -11,4 +11,5 @@ public class MessageStrings {
     public static final String QUANTITY_UPDATED_SUCCESSFULLY = "Quantity updated successfully!";
     public static final String AUTH_TOKEN_NOT_PRESENT = "Authorization token is empty";
     public static final String INVALID_AUTH_TOKEN = "Invalid authorization token";
+    public static final String INVALID_ORDER_ID = "Invalid order id";
 }

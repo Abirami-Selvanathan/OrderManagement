@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.reading_is_good.order_management.common.MessageStrings.INVALID_ORDER_ID;
 import static com.reading_is_good.order_management.common.MessageStrings.USER_NOT_FOUND;
 import static com.reading_is_good.order_management.order.OrderStatus.*;
 
@@ -52,6 +53,10 @@ public class OrderServiceImpl implements OrderService {
         List<Order> paginatedOrders = new ArrayList<>();
         paginatedOrderRecursion(user, pageLimit, size, paginatedOrders);
         return paginatedOrders;
+    }
+
+    public Order fetchOrderById(int id) throws OrderNotFound {
+        return orderRepository.findById((long) id).orElseThrow(() -> new OrderNotFound(INVALID_ORDER_ID));
     }
 
     private void paginatedOrderRecursion(User user, int pageLimit, int size, List<Order> paginatedOrders) {

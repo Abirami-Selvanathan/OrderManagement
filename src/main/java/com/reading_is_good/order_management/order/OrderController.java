@@ -37,4 +37,18 @@ public class OrderController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         }
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Order> fetch(@PathVariable int id, @RequestParam String token) {
+        try {
+            authenticationService.authenticate(token);
+            return new ResponseEntity<>(orderService.fetchOrderById(id), HttpStatus.OK);
+        } catch (OrderNotFound e) {
+            log.error("Exception occurred due to invalid order id", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (AuthenticationFailException e) {
+            log.error("Exception occurred due to invalid token", e);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+        }
+    }
 }

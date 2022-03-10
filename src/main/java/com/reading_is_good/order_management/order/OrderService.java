@@ -9,4 +9,6 @@ public interface OrderService {
     OrderResponseDto create(OrderDto orderDto) throws UserNotFound;
 
     List<Order> fetchOrdersByUserId(User user, int pageLimit, int size);
+
+    Order fetchOrderById(int id) throws OrderNotFound;
 }
