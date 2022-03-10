@@ -4,12 +4,15 @@ import com.reading_is_good.order_management.authentication.AuthenticationFailExc
 import com.reading_is_good.order_management.authentication.AuthenticationService;
 import com.reading_is_good.order_management.common.dto.ResponseDto;
 import com.reading_is_good.order_management.common.exception.CustomException;
+import com.reading_is_good.order_management.order.Order;
 import org.slf4j.Logger;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 import static com.reading_is_good.order_management.common.MessageStrings.EMAIL_ALREADY_EXISTS;
 import static com.reading_is_good.order_management.common.MessageStrings.USER_CREATED;
@@ -42,18 +45,17 @@ public class UserController {
     }
 
     @GetMapping("/{id}/orders")
-    ResponseEntity<ResponseDto> fetchOrders(@RequestParam int page,
+    ResponseEntity<List<Order>> fetchOrders(@RequestParam int page,
                                             @RequestParam int size,
                                             @RequestParam String token,
                                             @PathVariable int id) {
         try {
             authenticationService.authenticate(token);
-            userService.fetchOrders(id, page, size);
+            return new ResponseEntity<>(userService.fetchOrders(id, page, size), HttpStatus.OK);
         } catch (UserNotFound e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (AuthenticationFailException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         }
-        return null;
     }
 }
