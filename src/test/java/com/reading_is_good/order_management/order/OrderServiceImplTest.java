@@ -5,9 +5,11 @@ import com.reading_is_good.order_management.book.BookRepository;
 import com.reading_is_good.order_management.user.User;
 import com.reading_is_good.order_management.user.UserNotFound;
 import com.reading_is_good.order_management.user.UserRepository;
+import org.aspectj.weaver.ast.Or;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,8 +20,7 @@ import static java.util.Optional.of;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class OrderServiceImplTest {
@@ -132,6 +133,32 @@ public class OrderServiceImplTest {
         assertEquals(ORDERED, orderItemResponseDto.getOrderStatus());
         assertEquals(requiredQuantity, orderItemResponseDto.getQuantity());
         assertEquals(bookId, orderItemResponseDto.getBookId());
+    }
+
+    @Test
+    public void shouldReturnPaginatedOrdersWhenPageAndSizeIsGiven() {
+        int page = 0;
+        int size = 2;
+
+        User user = new User();
+        List<Order> firstPageOrders = new ArrayList<>();
+        Order orderOne = new Order();
+        Order orderTwo = new Order();
+        firstPageOrders.add(orderOne);
+        firstPageOrders.add(orderTwo);
+        List<Order> secondPageOrders = new ArrayList<>();
+        Order orderThree = new Order();
+        Order orderFour = new Order();
+        secondPageOrders.add(orderThree);
+        secondPageOrders.add(orderFour);
+
+        when(orderRepository.findByUser(any(User.class), any())).thenReturn(firstPageOrders)
+                .thenReturn(secondPageOrders).thenReturn(null);
+
+        List<Order> orders = orderService.fetchOrdersByUserId(user, page, size);
+
+        verify(orderRepository, times(3)).findByUser(any(), any());
+        assertEquals(4, orders.size());
     }
 
     private OrderDto buildOrderDto(long userId, long bookId, int requiredQuantity) {

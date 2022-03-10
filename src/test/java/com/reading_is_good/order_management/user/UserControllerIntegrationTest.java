@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static com.reading_is_good.order_management.common.MessageStrings.USER_CREATED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -63,5 +64,11 @@ public class UserControllerIntegrationTest {
 
         authenticationTokenRepository.deleteAll();
         userRepository.deleteAll();
+    }
+
+    @Test
+    public void returnsUnAuthorizedWhenInvalidTokenIsGiven() throws Exception {
+        mvc.perform(get("/users/1/orders?token=token&page=0&size=2"))
+                .andExpect(status().isUnauthorized());
     }
 }

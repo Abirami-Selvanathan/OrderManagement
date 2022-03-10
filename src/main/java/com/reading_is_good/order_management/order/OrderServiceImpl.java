@@ -5,8 +5,11 @@ import com.reading_is_good.order_management.book.BookRepository;
 import com.reading_is_good.order_management.user.User;
 import com.reading_is_good.order_management.user.UserNotFound;
 import com.reading_is_good.order_management.user.UserRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +46,22 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
 
         return saveOrderItem(orderDto, order);
+    }
+
+    public List<Order> fetchOrdersByUserId(User user, int pageLimit, int size) {
+        List<Order> paginatedOrders = new ArrayList<>();
+        paginatedOrderRecursion(user, pageLimit, size, paginatedOrders);
+        return paginatedOrders;
+    }
+
+    private void paginatedOrderRecursion(User user, int pageLimit, int size, List<Order> paginatedOrders) {
+        Pageable paging = PageRequest.of(pageLimit, size);
+        List<Order> orders = orderRepository.findByUser(user, paging);
+        if(orders != null && orders.size() > 0) {
+            pageLimit += 1;
+            paginatedOrders.addAll(orders);
+            this.paginatedOrderRecursion(user, pageLimit, size, paginatedOrders);
+        }
     }
 
     private OrderResponseDto saveOrderItem(OrderDto orderDto, Order order) {
