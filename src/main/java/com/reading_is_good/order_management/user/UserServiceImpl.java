@@ -20,11 +20,9 @@ public class UserServiceImpl implements UserService {
     private static final Logger log = getLogger(UserServiceImpl.class);
     private static final String MD_5 = "MD5";
 
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    AuthenticationServiceImpl authenticationService;
+    private final AuthenticationServiceImpl authenticationService;
 
     public UserServiceImpl(UserRepository userRepository, AuthenticationServiceImpl authenticationService) {
         this.userRepository = userRepository;
