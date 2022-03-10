@@ -27,13 +27,9 @@ public class StatisticsServiceImpl implements StatisticsService{
     }
 
     public List<StatisticsResponseDto> fetch(int userId) throws UserNotFound {
-        Optional<User> userOptional = userRepository.findById((long) userId);
+        User user = userRepository.findById((long) userId).orElseThrow(() -> new UserNotFound(USER_NOT_FOUND));
 
-        if (userOptional.isEmpty()) {
-            throw new UserNotFound(USER_NOT_FOUND);
-        }
-
-        List<Order> orders = orderRepository.findAllByUserOrderByCreatedDateDesc(userOptional.get());
+        List<Order> orders = orderRepository.findAllByUserOrderByCreatedDateDesc(user);
 
         if (orders == null || orders.isEmpty()) {
             return emptyList();

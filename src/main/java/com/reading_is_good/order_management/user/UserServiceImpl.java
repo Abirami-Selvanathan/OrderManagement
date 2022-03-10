@@ -48,13 +48,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<Order> fetchOrders(int id, int page, int size) throws UserNotFound {
-        Optional<User> userOptional = userRepository.findById((long) id);
-
-        if (userOptional.isEmpty()) {
-            throw new UserNotFound(USER_NOT_FOUND);
-        }
-        User user = userOptional.get();
-
+        User user = userRepository.findById((long) id).orElseThrow(() -> new UserNotFound(USER_NOT_FOUND));;
         return orderService.fetchOrdersByUserId(user, page, size);
     }
 

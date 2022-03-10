@@ -35,15 +35,9 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseDto create(OrderDto orderDto) throws UserNotFound {
         Order order = new Order();
 
-        Optional<User> userOptional = userRepository.findById(orderDto.getUserId());
+        User user = userRepository.findById(orderDto.getUserId()).orElseThrow(() -> new UserNotFound(USER_NOT_FOUND));
 
-        if (userOptional.isEmpty()) {
-            throw new UserNotFound(USER_NOT_FOUND);
-        }
-
-        User user = userOptional.get();
         order.setUser(user);
-
         orderRepository.save(order);
 
         return saveOrderItem(orderDto, order);

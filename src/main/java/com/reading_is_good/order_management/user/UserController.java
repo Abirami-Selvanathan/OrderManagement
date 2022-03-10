@@ -53,8 +53,10 @@ public class UserController {
             authenticationService.authenticate(token);
             return new ResponseEntity<>(userService.fetchOrders(id, page, size), HttpStatus.OK);
         } catch (UserNotFound e) {
+            log.error("Error occurred when invalid user", e);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (AuthenticationFailException e) {
+            log.error("Error occurred when invalid token", e);
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         }
     }
