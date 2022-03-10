@@ -22,6 +22,9 @@ public class Book {
     @Column(name = "created")
     private Date createdDate;
 
+    @Version
+    private Integer version;
+
     public Long getId() {
         return id;
     }
